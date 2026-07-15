@@ -1,0 +1,12 @@
+{
+  "addons": {
+    "gerador-doc-br@renan.dev": {
+      "updates": [
+        {
+          "version": "1.0.0",
+          "update_link": "https://github.com/renanlricci/gerador-doc-br/releases/download/v1.0.0/gerador_doc_br-1.0.0.xpi"
+        }
+      ]
+    }
+  }
+}
