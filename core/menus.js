@@ -12,6 +12,11 @@
 
 var GDBR_PAGE_CONTEXTS = ["page", "frame", "selection", "link", "image", "editable"];
 
+// Restringe o menu a páginas web. Sem isto, o menu aparece em about:/chrome://
+// e lojas de add-on, onde a injeção falha e nem o toast de aviso é possível.
+// Cobre http/https; file:// fica de fora (injeção exige permissão extra).
+var GDBR_URL_PATTERNS = ["*://*/*"];
+
 // removeAll é promise no Firefox e, dependendo da versão, callback no Chrome.
 function gdbrRemoveAllMenus(menusApi) {
   try {
@@ -29,7 +34,12 @@ async function gdbrInitMenus(menusApi) {
   const stored = await browser.storage.local.get({ maskEnabled: true });
   await gdbrRemoveAllMenus(menusApi);
 
-  menusApi.create({ id: "root", title: t("menuRoot"), contexts: GDBR_PAGE_CONTEXTS });
+  menusApi.create({
+    id: "root",
+    title: t("menuRoot"),
+    contexts: GDBR_PAGE_CONTEXTS,
+    documentUrlPatterns: GDBR_URL_PATTERNS,
+  });
 
   for (const [docId, doc] of Object.entries(DOC_TYPES)) {
     menusApi.create({
@@ -37,12 +47,14 @@ async function gdbrInitMenus(menusApi) {
       parentId: "root",
       title: t(doc.labelKey),
       contexts: GDBR_PAGE_CONTEXTS,
+      documentUrlPatterns: GDBR_URL_PATTERNS,
     });
     menusApi.create({
       id: docId + ":copy",
       parentId: "doc:" + docId,
       title: t("menuCopy"),
       contexts: GDBR_PAGE_CONTEXTS,
+      documentUrlPatterns: GDBR_URL_PATTERNS,
     });
     // "Preencher campo" só aparece quando o clique foi em um campo editável.
     menusApi.create({
@@ -50,10 +62,17 @@ async function gdbrInitMenus(menusApi) {
       parentId: "doc:" + docId,
       title: t("menuFill"),
       contexts: ["editable"],
+      documentUrlPatterns: GDBR_URL_PATTERNS,
     });
   }
 
-  menusApi.create({ id: "sep", parentId: "root", type: "separator", contexts: GDBR_PAGE_CONTEXTS });
+  menusApi.create({
+    id: "sep",
+    parentId: "root",
+    type: "separator",
+    contexts: GDBR_PAGE_CONTEXTS,
+    documentUrlPatterns: GDBR_URL_PATTERNS,
+  });
   menusApi.create({
     id: "mask",
     parentId: "root",
@@ -61,6 +80,7 @@ async function gdbrInitMenus(menusApi) {
     checked: stored.maskEnabled,
     title: t("menuMask"),
     contexts: GDBR_PAGE_CONTEXTS,
+    documentUrlPatterns: GDBR_URL_PATTERNS,
   });
 }
 
