@@ -1,7 +1,7 @@
 {
   "manifest_version": 2,
   "name": "Gerador Doc BR",
-  "version": "1.0.0",
+  "version": "1.1.0",
   "homepage_url": "https://github.com/renanlricci/gerador-doc-br",
   "description": "Gera números de documentos brasileiros DE TESTE (CPF, CNPJ, CNPJ alfanumérico, CNH, PIS/PASEP, RENAVAM, RG, Título de Eleitor) pelo menu do botão direito: copiar ou preencher o campo clicado. / Generates Brazilian TEST document numbers via right-click menu.",
   "browser_specific_settings": {
@@ -21,7 +21,7 @@
     "default_title": "Gerador Doc BR"
   },
   "background": {
-    "scripts": ["i18n.js", "generator.js", "background.js"]
+    "scripts": ["browser-shim.js", "i18n.js", "generator.js", "doc-types.js", "menus.js", "background.js"]
   },
   "icons": {
     "48": "icon.svg",

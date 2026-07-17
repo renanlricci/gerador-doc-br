@@ -62,6 +62,22 @@ var I18N_MESSAGES = {
 // Conteúdo do changelog por versão, também traduzido (renderizado em changelog.html).
 var I18N_CHANGELOG = [
   {
+    version: "1.1.0",
+    date: "2026-07-17",
+    notes: {
+      pt_BR: [
+        "Versão para Google Chrome (Manifest V3), com o mesmo núcleo de geração do Firefox.",
+        "No Chrome, \"Preencher campo\" usa o campo em foco (a API de elemento clicado é exclusiva do Firefox).",
+        "QR Code da doação maior no popup e no changelog.",
+      ],
+      en: [
+        "Google Chrome version (Manifest V3), sharing the same generation core as Firefox.",
+        "On Chrome, \"Fill field\" targets the focused field (the clicked-element API is Firefox-only).",
+        "Bigger donation QR Code in the popup and changelog.",
+      ],
+    },
+  },
+  {
     version: "1.0.0",
     date: "2026-07-15",
     notes: {

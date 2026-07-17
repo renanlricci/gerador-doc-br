@@ -1,7 +1,7 @@
 "use strict";
 
 const assert = require("assert");
-const g = require("../generator.js");
+const g = require("../core/generator.js");
 
 // Vetores conhecidos
 // CPF 111.444.777-35
