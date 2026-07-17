@@ -79,8 +79,10 @@ hr {
 }
 
 .qr {
-  width: 140px;
-  height: 140px;
+  /* Quase a largura do botão "Copiar Pix" (100%/max 260px), levemente menor */
+  width: calc(100% - 16px);
+  max-width: 244px;
+  height: auto;
   border: 1px solid var(--border);
   border-radius: 8px;
   background: #fff;

@@ -1,63 +1,105 @@
-# Gerador Doc BR — extensão Firefox
+# Gerador Doc BR
 
-Gera documentos brasileiros **de teste** (formato válido, dados fictícios) direto pelo menu de contexto (botão direito), sem precisar abrir sites como o 4devs.
+Extensão de navegador que gera números de documentos brasileiros **de teste** direto pelo menu do botão direito — sem abrir site de gerador toda vez que um formulário pedir CPF.
 
-## Recursos
+> **Aviso**: os números são aleatórios, apenas com formato e dígitos verificadores válidos. Não correspondem a documentos reais. Uso exclusivo para desenvolvimento e testes de software.
 
-- **CPF** — 11 dígitos com dígitos verificadores válidos (módulo 11).
-- **CNPJ** — 14 dígitos, raiz aleatória + filial `0001`, DVs válidos.
-- **CNPJ alfanumérico** — novo formato da Receita Federal (raiz com letras e números, valor do caractere = ASCII − 48, DVs numéricos por módulo 11). Validado contra o exemplo oficial `12.ABC.345/01DE-35`.
-- **CNH** — 9 dígitos + 2 DVs módulo 11 (algoritmo DENATRAN). Sem máscara oficial.
-- **PIS/PASEP** — 10 dígitos + 1 DV módulo 11 (pesos 3,2,9,8,7,6,5,4,3,2). Máscara `000.00000.00-0`.
-- **RENAVAM** — 10 dígitos + 1 DV módulo 11 sobre os dígitos invertidos. Sem máscara oficial.
-- **RG** — padrão SSP-SP (não existe padrão nacional): 8 dígitos + 1 DV módulo 11, DV pode ser `X`. Máscara `00.000.000-0`.
-- **Título de Eleitor** — 8 dígitos + 2 de UF (01–28) + 2 DVs módulo 11, com exceção de SP/MG (resto 0 vira DV 1). Máscara `0000 0000 0000`.
-- **Copiar** — envia o documento para a área de transferência.
-- **Preencher campo** — aparece só quando o botão direito é clicado sobre um campo editável (input, textarea, contenteditable); preenche o próprio campo clicado e dispara eventos `input`/`change` (compatível com React/Angular/Vue).
-- **Com máscara** — checkbox no menu; alterna entre `111.444.777-35` e `11144477735`. Preferência salva.
-- **Tradução** — arquivo único (`i18n.js`) com pt-BR e en; segue o idioma da interface do Firefox.
-- **Popup** — clique no ícone da barra mostra autor, versão, doação via Pix (QR + copia e cola) e link para o changelog interno (`changelog.html`).
+## Documentos suportados
 
-## Estrutura
+| Documento | Algoritmo | Máscara |
+|---|---|---|
+| CPF | 9 dígitos + 2 DVs módulo 11 | `000.000.000-00` |
+| CNPJ | Raiz aleatória + filial `0001` + 2 DVs módulo 11 | `00.000.000/0000-00` |
+| CNPJ alfanumérico | Novo formato da Receita Federal (valor do caractere = ASCII − 48, DVs numéricos). Validado contra o exemplo oficial `12.ABC.345/01DE-35` | `XX.XXX.XXX/XXXX-00` |
+| CNH | 9 dígitos + 2 DVs (algoritmo DENATRAN) | — |
+| PIS/PASEP | 10 dígitos + 1 DV módulo 11 (pesos 3,2,9…2) | `000.00000.00-0` |
+| RENAVAM | 10 dígitos + 1 DV módulo 11 sobre dígitos invertidos | — |
+| RG | Padrão SSP-SP (não há padrão nacional); DV pode ser `X` | `00.000.000-0` |
+| Título de Eleitor | 8 dígitos + UF (01–28) + 2 DVs, exceção SP/MG | `0000 0000 0000` |
 
-| Arquivo | Papel |
-|---|---|
-| `manifest.json` | Manifest V2, permissões `menus`, `clipboardWrite`, `storage`, `activeTab` (sem host permissions) |
-| `generator.js` | Funções puras de geração/DV (testáveis via Node) |
-| `background.js` | Cria menus de contexto, trata cliques e injeta o content script sob demanda |
-| `content.js` | Injetado no clique (activeTab): preenche campo / copia / mostra toast |
-| `i18n.js` | Traduções pt-BR + en (arquivo único) |
-| `popup.html` / `donate.js` / `style.css` | Popup do ícone da barra (autor, Pix, changelog) |
-| `changelog.html` | Página de changelog interna |
-| `pix-qr.svg` | QR Code estático do Pix (gerado offline, CRC validado) |
-| `test/generator.test.js` | Testes com vetores conhecidos + 1000 gerações revalidadas |
+## Como usar
 
-## Testes
+1. Clique com o **botão direito** em qualquer página (ou direto num campo de formulário).
+2. `Gerar documento` → escolha o documento → **Copiar** ou **Preencher campo**.
+3. `Preencher campo` só aparece quando o clique foi sobre um campo editável; o valor é inserido com eventos `input`/`change`, compatível com React, Angular e Vue.
+4. Checkbox **Com máscara** alterna pontuação (preferência salva).
+5. O ícone da barra abre o popup com informações, changelog e doação.
 
-```bash
-node test/generator.test.js
+Interface em **pt-BR** e **inglês** (segue o idioma do navegador).
+
+## Instalação
+
+### Firefox
+
+Baixe o `.xpi` assinado da [página de Releases](https://github.com/renanlricci/gerador-doc-br/releases) e instale em **Menu > Extensões > engrenagem > Instalar extensão de um arquivo**. Atualizações chegam automaticamente (auto-update via `updates.json` deste repositório).
+
+### Chrome
+
+Publicação na Chrome Web Store em andamento. Enquanto isso, para testar: `chrome://extensions` → ativar **Developer mode** → **Load unpacked** → pasta `dist/chrome` (após rodar o build, veja abaixo).
+
+## Como funciona cada versão
+
+O código é um só; cada navegador leva uma casca fina por cima do núcleo compartilhado.
+
+| | Firefox | Chrome |
+|---|---|---|
+| Manifest | V2 (`firefox/manifest.json`) | V3 (`chrome/manifest.json`) |
+| Background | Página persistente (`firefox/background.js`) | Service worker (`chrome/background.js`) |
+| Injeção do content script | `tabs.executeScript`, sob demanda no clique do menu | `chrome.scripting.executeScript`, idem |
+| Alvo do "Preencher campo" | Elemento exato clicado (`menus.getTargetElement`, API exclusiva do Firefox) | Campo focado (`document.activeElement` — botão direito foca o campo na prática) |
+| Cópia em página restrita | Fallback via background (MV2 tem DOM) | Sem fallback (service worker não tem DOM) — toast avisa |
+| Ícones | SVG | PNG 16/32/48/128 (Chrome não aceita SVG no manifest) |
+| Permissões | `menus`, `clipboardWrite`, `storage`, `activeTab` | + `scripting` (exigência do MV3) |
+| Updates | Auto-update self-hosted (`updates.json` + GitHub Releases) | Chrome Web Store |
+
+Sem host permissions em nenhuma das versões: o content script só é injetado na aba ativa quando você usa o menu (`activeTab`). Limitação conhecida: preencher campo dentro de iframe de outra origem não é possível — a extensão avisa e a opção Copiar continua funcionando.
+
+## Estrutura do projeto
+
+```
+core/       Código compartilhado: geradores, i18n, content script, menus, popup, assets
+firefox/    Específico do Firefox: manifest MV2 + background (cola)
+chrome/     Específico do Chrome: manifest MV3 + service worker + ícones PNG
+build.mjs   Monta dist/firefox e dist/chrome (achata core/ + <alvo>/ na raiz do pacote)
+test/       Testes dos algoritmos (Node puro, sem dependências)
+docs/       Documentação de submissão/release
 ```
 
-## Instalação temporária (desenvolvimento)
+`build.mjs` falha se um arquivo tiver o mesmo nome em `core/` e na pasta de um alvo — proteção contra sobrescrita silenciosa no flatten.
 
-1. Abrir `about:debugging#/runtime/this-firefox` no Firefox.
-2. **Carregar extensão temporária...** e escolher o `manifest.json` desta pasta.
-3. Some ao fechar o Firefox — recarregar quando precisar.
+## Desenvolvimento
 
-## Instalação permanente
+Requisitos: Node.js 20+.
 
-Firefox exige assinatura da Mozilla. Opções:
+```bash
+# testes dos algoritmos (vetores calculados à mão + 1000 gerações revalidadas por tipo)
+node test/generator.test.js
 
-- **Assinar (gratuito, recomendado):** criar conta em https://addons.mozilla.org, gerar credenciais de API em https://addons.mozilla.org/developers/addon/api/key/ e rodar:
+# monta dist/firefox e dist/chrome
+node build.mjs
 
-  ```bash
-  npx web-ext sign --channel=unlisted --api-key=SUA_KEY --api-secret=SEU_SECRET
-  ```
+# lint do alvo Firefox (config em web-ext-config.mjs)
+npx web-ext lint
 
-  Gera um `.xpi` assinado (distribuição própria, não aparece na loja). Instalar pelo Firefox em Menu > Extensões > engrenagem > *Instalar extensão de um arquivo*.
+# carregar para teste manual
+# Firefox: about:debugging#/runtime/this-firefox > Carregar extensão temporária > dist/firefox/manifest.json
+# Chrome:  chrome://extensions > Developer mode > Load unpacked > dist/chrome
+```
 
-- **Sem assinatura:** Firefox Developer Edition/Nightly/ESR permitem `xpinstall.signatures.required = false` em `about:config`. Versão estável do Firefox não permite.
+Toda string visível ao usuário vive em `core/i18n.js`, sempre em pt-BR **e** inglês — inclusive as notas de changelog (`I18N_CHANGELOG`).
 
-## Aviso
+## Privacidade
 
-Documentos gerados são fictícios, apenas com formato/dígitos verificadores válidos. Uso exclusivo para desenvolvimento e testes.
+Zero coleta, zero transmissão, zero requisição de rede. A única gravação local é a preferência da máscara (`storage.local`). O QR Code da doação é um SVG estático empacotado.
+
+## Release
+
+Fluxo documentado em [`docs/amo-submission.md`](docs/amo-submission.md): bump de versão nos dois manifests → testes/lint/build → assinatura AMO (Firefox) e upload na CWS (Chrome) → GitHub Release com o `.xpi` → atualização do `updates.json`.
+
+## Doação
+
+Gostou? O popup da extensão tem um Pix — doe um café ao dev.
+
+## Licença
+
+[MIT](LICENSE) © Renan Lucas Ricci

@@ -28,13 +28,14 @@
 
 ## Empacotamento
 
-Rodar a partir da pasta do projeto (o `web-ext-config.mjs` exclui `test/`, `docs/` e `README.md` do pacote):
+Rodar a partir da pasta do projeto. O build monta `dist/firefox` (core/ + firefox/ achatados); o `web-ext-config.mjs` aponta `sourceDir` para lá:
 
 ```bash
+node build.mjs
 npx web-ext build --overwrite-dest
 ```
 
-Gera `web-ext-artifacts/gerador_doc_br-<versão>.zip`.
+Gera `web-ext-artifacts/gerador_doc_br-<versão>.zip`. (Chrome: ver `docs/chrome-web-store.md`.)
 
 **Versão:** incrementar `version` no `manifest.json` a cada nova submissão — AMO rejeita versão repetida.
 

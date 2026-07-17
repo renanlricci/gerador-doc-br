@@ -1,4 +1,5 @@
 # Build e assinatura
+dist/
 web-ext-artifacts/
 *.xpi
 .amo-upload-uuid
