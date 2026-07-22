@@ -63,13 +63,13 @@ var I18N_MESSAGES = {
 var I18N_CHANGELOG = [
   {
     version: "1.1.1",
-    date: "2026-07-17",
+    date: "2026-07-22",
     notes: {
       pt_BR: [
-        "Publicação na loja oficial de extensões do Firefox (Firefox Add-ons).",
+        "Melhorias de distribuição e publicação nas lojas oficiais.",
       ],
       en: [
-        "Published on the official Firefox add-ons store (Firefox Add-ons).",
+        "Distribution improvements and publishing on the official stores.",
       ],
     },
   },
