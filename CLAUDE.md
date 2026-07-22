@@ -20,7 +20,7 @@ A cola de cada browser fornece `deps` para `gdbrHandleMenuClick` (core/menus.js)
 ## Regras invioláveis
 
 1. **ID do add-on Firefox `gerador-doc-br@renan.dev` NUNCA muda** — já submetido ao AMO.
-2. **Firefox = canal unlisted** com `update_url`. Se migrar para listed: remover `update_url` do manifest E `lint.selfHosted` do `web-ext-config.mjs`.
+2. **Firefox = canal listed** (loja AMO) a partir da 1.1.1. Sem `update_url` no manifest (AMO rejeita listed com ele) e sem `lint.selfHosted`. Migração é irreversível: listed não volta a unlisted. O `updates.json` é legado das versões unlisted 1.0.0/1.1.0 (self-hosted) — mantido para quem ainda as tem; NÃO adicionar versões novas nele.
 3. **Scripts injetados (`browser-shim.js`, `i18n.js`, `content.js`) são reavaliados a cada clique**: só `var` em top-level (nunca `const`/`let`) e manter a guarda `gdbrListenerReady`. `const` quebra a segunda injeção.
 4. **Sem host permissions** — só `activeTab` (+ `scripting` no Chrome, exigência MV3). Não adicionar `<all_urls>`.
 5. **Zero rede, zero CDN, zero código remoto** — política de ambas as lojas. QR do Pix é SVG estático (validar CRC16 se o código Pix mudar).
@@ -45,4 +45,4 @@ A cola de cada browser fornece `deps` para `gdbrHandleMenuClick` (core/menus.js)
 
 ## Release (só quando o usuário pedir)
 
-Fluxo completo em `docs/amo-submission.md`. Resumo: bump `version` nos DOIS manifests (mantê-los iguais) → testes/lint/build → Firefox: `npx web-ext sign --channel=unlisted` (usuário roda com as chaves dele) + GitHub Release `vX.Y.Z` com o `.xpi` (nome exato do `update_link`) + entrada nova no `updates.json` → Chrome: zip de `dist/chrome` e upload no dashboard da Chrome Web Store.
+Fluxo completo em `docs/amo-submission.md` (Firefox) e `docs/chrome-web-store.md` (Chrome). Resumo: bump `version` nos DOIS manifests (mantê-los iguais) → testes/lint/build → Firefox: submeter `dist/firefox` no canal **listed** do AMO (Developer Hub, "On this site") → Chrome: zip de `dist/chrome` e upload no dashboard da Chrome Web Store. Ambas as lojas distribuem os updates; sem GitHub Releases/`updates.json` para versões novas.
