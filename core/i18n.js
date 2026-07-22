@@ -62,6 +62,18 @@ var I18N_MESSAGES = {
 // Conteúdo do changelog por versão, também traduzido (renderizado em changelog.html).
 var I18N_CHANGELOG = [
   {
+    version: "1.1.1",
+    date: "2026-07-22",
+    notes: {
+      pt_BR: [
+        "Melhorias de distribuição e publicação nas lojas oficiais.",
+      ],
+      en: [
+        "Distribution improvements and publishing on the official stores.",
+      ],
+    },
+  },
+  {
     version: "1.1.0",
     date: "2026-07-17",
     notes: {
